@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>老婆翻译</title>
+    <link rel="stylesheet" href="pure-min.css">
+    <style>.container{width: 90%;margin: auto}textarea{width: 100%;margin: 1em 0 2em}.footer{color: #888;font-size: small}</style>
+</head>
+<body>
+<div class="container">
+    <h2>老婆翻译</h2>
+    <form class="pure-form">
+        <div>
+            <span>源语言:</span>
+            <select id="src">
+                <option value="">自动检测</option>
+            </select>
+        </div>
+        <textarea rows="10" id="q" placeholder="在这里输入要翻译的内容"></textarea>
+
+
+        <div>
+            <span>目标语言:</span>
+            <select id="target">
+            </select>
+        </div>
+        <textarea rows="10" id="r" placeholder="这里会出来翻译的结果"></textarea>
+    </form>
+    <div class="footer">
+       &heartsuit; Lovingly made by Horsley
+    </div>
+</div>
+
+<script src="zepto.min.js"></script>
+<script>
+    $(function(){
+        var langData = {{.Lang}};
+
+        var inputArea = $("#q");
+        var resultArea = $("#r");
+        var langSrc = $("#src");
+        var langDst = $("#target");
+        for (var i in langData) {
+            langSrc.append('<option value="'+langData[i].Val+'">'+langData[i].Name+'</option>');
+            langDst.append('<option value="'+langData[i].Val+'">'+langData[i].Name+'</option>');
+        }
+
+        var lastQueryTimeout = 0;
+        var doTranslate = function(){
+            if (inputArea.val() == "") {
+                return;
+            }
+
+            if (lastQueryTimeout) {
+                clearTimeout(lastQueryTimeout);
+                lastQueryTimeout = 0;
+            }
+
+            resultArea.val("正在翻译……");
+
+            lastQueryTimeout = setTimeout(function() {
+                var param = {
+                    q: inputArea.val(),
+                    target: langDst.val(),
+                    src: langSrc.val()
+                };
+                $.post("translate", JSON.stringify(param), function(resp){
+                    resultArea.val(resp);
+                });
+            }, 500);
+        };
+
+        inputArea.keyup(doTranslate);
+        langSrc.change(doTranslate);
+        langDst.change(doTranslate);
+
+    });
+</script>
+</body>
+</html>
